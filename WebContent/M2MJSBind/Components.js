@@ -1,3 +1,28 @@
+function SimpleElement(element) {
+    this.element = element;
+    this.value = "";
+   
+    return this;
+}
+
+SimpleElement.prototype.setValue = function (value) {
+    if (this.element.tagName.toLowerCase() == "input" || this.element.tagName.toLowerCase() == "textarea") {
+        this.element.value = value;
+    } else {
+        this.element.innerHTML = value;
+    }
+
+    this.value = value;
+   
+   
+};
+
+SimpleElement.prototype.getValue = function () {
+    return this.value;
+};
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 /**
  * Label
  *  Simple Rendering
@@ -73,16 +98,18 @@ History.prototype.renderValue = function () {
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-/** 
+/**
  * Renders Component with Id and Description.
- * Input should be an array of objects (JSON or discrete)   
- * 
+ * Input should be an array of objects (JSON or discrete)  
+ *
  * Requires "Select.js"
  * */
 
-function SelectElements(element) {
+function SelectElements(element, idField, textField) {
     this.elementSelect = new Select(element);
     this.value = null;
+    this.idField = idField;
+    this.textField = textField;
 
     return this;
 }
@@ -90,7 +117,7 @@ function SelectElements(element) {
 SelectElements.prototype.setValue = function (value) {
     this.value = value;
     this.elementSelect.clear();
-    this.elementSelect.renderChoices(this.value, "Id", "Title");
+    this.elementSelect.renderChoices(this.value, this.idField, this.textField);
 };
 
 SelectElements.prototype.getValue = function () {
@@ -103,19 +130,40 @@ SelectElements.prototype.getSelectedIndex = function () {
 
 SelectElements.prototype.reRenderChoices = function () {
     this.elementSelect.clear();
-    this.elementSelect.renderChoices(this.value, "Id", "Title");
+    this.elementSelect.renderChoices(this.value, this.idField, this.textField);
 };
 
 
 SelectElements.prototype.renderValue = function () {
     var s = "";
     for (var i = 0; i < this.value.length; i++) {
-        s += this.value[i]["description"];
+        s += this.value[i][this.textField];
         if (i < this.value.length - 1) {
             s += ";&nbsp;";
         }
     }
     return s;
+};
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function SelectComponent(select, idField, textField) {
+    this.select = select;
+    this.value = null;
+    this.idField = idField;
+    this.textField = textField;
+
+    return this;
+}
+
+SelectComponent.prototype.setValue = function (value) {
+    this.value = value;
+    this.select.setValue(value);
+};
+
+SelectComponent.prototype.getValue = function () {
+    this.value = this.select.getValue();    
+    return this.value;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,12 +179,12 @@ function RadioSet(elements) {
 }
 
 RadioSet.prototype.setValue = function (value) {
-	for (var i = 0; i < this.radioElements.length; i++) {
-		if (this.radioElements[i].value==value){
-			this.radioElements[i].checked = true;
-			return;
-		}
-	}
+        for (var i = 0; i < this.radioElements.length; i++) {
+                if (this.radioElements[i].value==value){
+                        this.radioElements[i].checked = true;
+                        return;
+                }
+        }
 };
 
 RadioSet.prototype.getValue = function () {
@@ -145,4 +193,23 @@ RadioSet.prototype.getValue = function () {
             return this.radioElements[i].value;
         }
     }
+};
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function CKEditorBasic(element) {
+    this.element = element;
+    this.element.className = "ckeditor";
+    return this;
+}
+
+CKEditorBasic.prototype.setValue = function (value) {
+    this.element.value = value;
+};
+
+CKEditorBasic.prototype.getValue = function () {
+    var editorId = this.element.id;
+    var editor = eval("CKEDITOR.instances." + editorId);
+
+    return editor.getData();
 };

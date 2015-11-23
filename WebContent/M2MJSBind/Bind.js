@@ -146,6 +146,3 @@ Component.prototype.setValue = function (value) {
         this.element.value = value;
     }
 };
-
-
-alert("Here is Bind!!!");
