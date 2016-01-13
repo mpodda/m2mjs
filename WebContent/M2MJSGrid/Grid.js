@@ -100,7 +100,7 @@ Grid.prototype.renderGrid = function () {
         };
 
         gridRow.onSelect = function () {
-            grid.modelObject = this.modelObject;
+            grid.modelObject = this.getModelObject(); //this.modelObject;
             grid.onGridRowSelect(this);
         };
 
@@ -129,6 +129,18 @@ Grid.prototype.getModelObject = function () {
     return this.modelObject;
 };
 
+//------------------------------------------------------------------------------------------------
+
+Grid.prototype.getGridModelObject = function () {
+	var gridRowsModelObjects = new Array();
+	
+	for (var i=0; i<this.gridRows.length; i++){
+		gridRowsModelObjects.push(this.gridRows[i].form.getModel().getObject());
+	}
+	
+    return gridRowsModelObjects;
+};
+
 //-------------------------------------------------------------------------------------------------
 
 Grid.prototype.setDataList = function (dataList) {
@@ -151,12 +163,15 @@ function GridRow(gridTemplate, modelObject, objectPaths) {
     this.contextMenu = null;
 
     this.buttons = new Array();
+    
+    this.form = new Form();
 
     this.mouseOverClass = "overGridRow";
     this.selectedClass = "selectedGridRow";
 
     this.onBeforeSelect = function () { };
     this.onSelect = function () { };
+    this.defineComponent = function(id, element, objectValue){};
 
     return this;
 }
@@ -172,7 +187,12 @@ GridRow.prototype.renderGridRow = function () {
     
     for (var i=0; i < this.objectPaths.length; i++){
     	var element = getElement(this.gridRowContainer, this.objectPaths[i]);
+        
+        var objectValue = this.getObjectValue(this.objectPaths[i]);
+        this.parseGridRow(this.objectPaths[i], objectValue);
+        
     	if (element != null){
+            /*
     		var objectPathParts = this.objectPaths[i].split(".");
     		var modelObjectPropertiesStringPath = "this.modelObject";
     		
@@ -181,7 +201,7 @@ GridRow.prototype.renderGridRow = function () {
     		}
     		
     		var objectValue = eval(modelObjectPropertiesStringPath);
-    		//alert(objectValue);
+            */
     		if (typeof objectValue == "function"){
     			var functionValue = eval(modelObjectPropertiesStringPath + "()");
     			if (typeof functionValue == "object"){
@@ -194,13 +214,12 @@ GridRow.prototype.renderGridRow = function () {
     			}else{
     				element.innerHTML = functionValue;
     			}
-    			
-    			//element.innerHTML = eval(modelObjectPropertiesStringPath + "()");
     		} else {
     			element.innerHTML = objectValue;
+    			this.defineComponent(this.objectPaths[i], element, objectValue);
     		}
-    		
     	}
+        
     }
 
     var gridRow = this;
@@ -243,6 +262,8 @@ GridRow.prototype.renderGridRow = function () {
         return false;
     });
 
+    this.form.setModel (new Model(this.modelObject));
+    
     return this.gridRowContainer;
 };
 
@@ -271,6 +292,36 @@ GridRow.prototype.setContextMenu = function (contextMenu) {
 GridRow.prototype.addButton = function (button) {
     this.buttons.push(button);
 };
+
+//------------------------------------------------------------------------------------------------
+
+GridRow.prototype.getModelObject = function(){
+	return this.form.getModel().getObject();
+};
+
+//------------------------------------------------------------------------------------------------
+
+GridRow.prototype.parseGridRow = function(objectPath, objectValue){
+    var toReplace = "{" + objectPath + "}";
+    
+    if (this.gridRowContainer.innerHTML.indexOf(toReplace) > -1){
+        //this.gridRowContainer.innerHTML = this.gridRowContainer.innerHTML.replace(eval("/{" + objectPath + "}/g"), objectValue);
+        this.gridRowContainer.innerHTML = this.gridRowContainer.innerHTML.replace(eval("/" + toReplace + "/g"), objectValue);
+    }
+}
+
+//------------------------------------------------------------------------------------------------
+
+GridRow.prototype.getObjectValue = function(objectPaths){
+    var objectPathParts = objectPaths.split(".");
+    var modelObjectPropertiesStringPath = "this.modelObject";
+    
+    for (var p=0; p<objectPathParts.length; p++){
+        modelObjectPropertiesStringPath += '[objectPathParts[' + new String(p) + ']]';
+    }
+    
+    return eval(modelObjectPropertiesStringPath);
+}
 
 // ================================================================================================
 
