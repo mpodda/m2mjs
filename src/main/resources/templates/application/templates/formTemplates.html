@@ -1,0 +1,41 @@
+<!-- View Person -->
+
+<table id="viewPersonTemplate" class="table">
+    <tr><td class="col-xs-1">Id: </td> <td id="personIdView"></td> </tr>
+    <tr><td>Name: </td> <td id="personNameView"></td> </tr>
+    <tr><td>Gender: </td> <td id="personGenderView"></td> </tr>
+    <tr><td>Nationality: </td> <td id="personNationalityView"></td> </tr>
+    <tr><td>Active: </td> <td id="personActiveView"></td> </tr>
+    <tr><td>Comments: </td> <td id="personCommentsView"></td> </tr>
+</table>
+
+<!-- / View Person -->
+
+
+<!-- Edit Person -->
+
+<table id="editPersonTemplate" class="table">
+    <tr><td>Id: </td> <td colspan="2"><input type="text" id="personId" readonly="readonly" /> </td> </tr>
+    <tr><td class="col-xs-1">Name: </td> <td class="col-xs-6"><input type="text" id="personName" class="input-sm" /></td> <td id="personNameErrorLabel" class="errorLabel col-xs-3"></td></tr>
+    <tr>
+        <td>Gender: </td> 
+        <td>
+            <label for="personGenderManRadio">Man: </label> <input type="radio" name="personGender" value="M" id="personGenderManRadio" /> 
+            <label for="personGenderWomanRadio">Woman: </label> <input type="radio" name="personGender" value="W" id="personGenderWomanRadio" />
+        </td>
+        <td id="personGenderErrorLabel" class="errorLabel col-xs-3"></td>
+    </tr>
+    <tr>
+        <td>Nationality: </td>
+        <td><select id="personNationality"></select></td>
+        <td id="personNationalityErrorLabel" class="errorLabel col-xs-3"></td>
+    </tr>
+    <tr>
+        <td>Active: </td> 
+        <td><button id="personActive" type="button" class="btn btn-primary"><i class="icon-check"></i> <span></span></button></td>
+        <td id="personActiveStatusErrorLabel" class="errorLabel col-xs-3"></td> 
+    </tr>
+    <tr><td>Comments: </td> <td><textarea id="personComments"></textarea> </td> <td id="personCommentsErrorLabel" class="errorLabel col-xs-3"></td> </tr>
+</table>
+
+<!-- / Edit Person -->

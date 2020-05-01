@@ -1,0 +1,45 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout-m2m-js">
+
+<head>
+	<title>Grid With Editable Components</title>
+	
+    <style type="text/css">
+        .selectedGridRow {
+            background-color: #cdcdcd;
+        }
+    </style>
+	
+</head>
+
+ <body>
+  	<div layout:fragment="content">
+  	
+		<h2>Grid With Editable Components</h2>
+		
+		<div class="row">
+		    <div class="col-lg-6">
+		        <table class="table table-hover">
+		            <thead>
+		                <tr><th>Id</th><th>Name</th><th>Nationality</th><th>Gender</th><th>Active</th><th>Comments</th></tr>
+		            </thead>
+		            <tbody id="personDataContainer"></tbody>
+		        </table>
+		    </div>
+		</div>
+		
+		<div class="row">
+		    <div class="btn-toolbar">
+		        <div class="btn btn-info" id="btnShowGridData">Show Grid Data</div>
+		        <div class="btn btn-primary" id="btnSaveData"><i class="icon-save"></i> Save</div>
+		        <a class="btn btn-success" th:href="@{/grid}"><i class="icon-list"></i> Return to Grid main screen</a>
+		    </div>
+		</div>
+		
+  		<script type="text/javascript" th:src="@{/app/grid/gridWithEditableComponents.js}"></script>
+  	
+	</div>
+</body>
+</html>
+  	

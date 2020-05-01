@@ -1,0 +1,69 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout-m2m-js">
+
+<head>
+	<title>Simple Form</title>
+</head>
+
+ <body>
+ 
+  	<div layout:fragment="content">
+  	
+		<h2>Simple View Form</h2>
+		
+		<div id="formPlaceHolder">
+		
+		</div>
+		
+		<div class="row">
+		    <div class="btn-toolbar">
+		        <a class="btn btn-success" th:href="@{/simpleGrid}"><i class="icon-list"></i> Return to Grid</a>
+		    </div>
+		</div>
+		
+		<script th:inline="javascript">
+		(function (){
+		    var templateLoader = new M2MJS_COMMON.TemplateLoader([[@{/templates/formTemplates}]]);
+		    var viewPersonTemplate = templateLoader.loadTemplate("viewPersonTemplate");
+		
+		    document.getElementById("formPlaceHolder").appendChild(viewPersonTemplate);
+		
+		    var c = {};
+		
+		    var cn = M2MJS_COMMON.Connection(c);
+		
+		    c.config({
+		        url: [[@{/person/} + ${id}]],
+		        method : "GET",
+		        async: true
+		    }).connect();
+		
+		
+		    c.onResponse = function () {
+		        var results = c.getResponseJson();
+		
+		        renderForm(results);
+		    }
+		
+		    function renderForm(person) { 
+		        var m2mjs = new M2MJS();
+		
+		        var viewForm = new m2mjs.Form();
+		
+		        viewForm.addComponent(new m2mjs.Component("id", document.getElementById("personId")));
+		        viewForm.addComponent(new m2mjs.Component("name", document.getElementById("personName")));
+		        viewForm.addComponent(new m2mjs.Component("gender", document.getElementById("personGender")));
+		        viewForm.addComponent(new m2mjs.Component("nationality.description", document.getElementById("personNationality")));
+		        viewForm.addComponent(new m2mjs.Component("active", document.getElementById("personActive")));
+		        viewForm.addComponent(new m2mjs.Component("comments", document.getElementById("personComments")));
+		
+		        viewForm.setModelObject(person);
+		    }
+		})();
+		</script>  	
+  	
+	</div>
+	
+</body>
+</html>  	

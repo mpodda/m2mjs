@@ -1,0 +1,24 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout-m2m-js">
+
+<head>
+	<title th:text="Grid"></title>
+</head>
+
+ <body>
+  	<div layout:fragment="content">
+  	
+		<h1>Grid Demo <i class="icon-list"></i></h1>
+		
+		<ul>
+		    <li><a th:href="@{/simpleGrid}">Simple Grid</a></li>
+		    <li><a th:href="@{/gridWithRenderers}">Grid With Renderers</a></li>
+		    <li><a th:href="@{/gridWithEditableComponents}">Grid With Editable Components</a></li>
+		    <li><a th:href="@{/gridWithPaging}">Grid With Paging</a></li>
+		    <li><a th:href="@{/sortableGrid}">Sortable Grid</a></li>
+		</ul> 
+	 		
+	</div>
+</body>
+</html>

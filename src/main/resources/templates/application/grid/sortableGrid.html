@@ -1,0 +1,36 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout-m2m-js">
+
+<head>
+	<title>Sortable Grid</title>
+	<link rel="stylesheet" th:href="@{/css/sort.css}" />
+</head>
+
+ <body>
+  	<div layout:fragment="content">
+  	
+		<h2>Sortable Grid</h2>
+		
+		<div class="row">
+		    <div class="col-lg-6">
+		        <table class="table table-hover">
+		            <thead>
+		                <tr><th class="sortable" id="sortableId">Id</th><th class="sortable" id="sortableName">Name</th><th class="sortable" id="sortableNationality">Nationality</th></tr>
+		            </thead>
+		            <tbody id="personDataContainer"></tbody>
+		        </table>
+		    </div>
+		</div>
+		
+		<div class="row">
+		    <div class="btn-toolbar">
+		        <a class="btn btn-success" th:href="@{/grid}"><i class="icon-list"></i> Return to Grid main screen</a>
+		    </div>
+		</div>
+		
+		<script type="text/javascript" th:src="@{/app/grid/sortableGrid.js}"></script>
+  	
+	</div>
+</body>
+</html>

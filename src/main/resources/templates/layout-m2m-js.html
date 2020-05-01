@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    
+    <link rel="stylesheet" th:href="@{/lib/bootstrap/dist/css/bootstrap.css}" />
+    <link rel="stylesheet" th:href="@{/css/site.css}" />
+    <link rel="stylesheet" th:href="@{/css/font-awesome.css}" />
+    
+    <script type="text/javascript"  th:inline="javascript">
+    	/*<![CDATA[*/
+    	const templatePath = [[@{/templates/gridTemplates}]];
+    	/*]]>*/
+    </script>
+    
+    <script type="text/javascript"  th:inline="javascript">
+    	/*<![CDATA[*/
+    	const formTemplatePath = [[@{/templates/formTemplates}]];
+    	/*]]>*/
+    </script>
+    
+    <script type="text/javascript"  th:inline="javascript">
+    	/*<![CDATA[*/
+    	
+    	const loadPersonsUrl = [[@{/grid/loadPersons}]];
+
+    	const loadNationalitiesUrl = [[@{/nationalities}]];
+
+    	const savePersonsUrl = [[@{/savePersons}]];
+
+    	const savePersonUrl = [[@{/savePerson}]];
+
+    	const createPersonUrl = [[@{/person/new}]];
+    		
+    	const manImage = [[@{/images/man-2.png}]];
+
+    	const womanImage = [[@{/images/woman.png}]];
+
+    	const loadPersonUrl = [[@{/person}]];
+    	
+    	/*]]>*/
+    </script>
+        
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand">m2m-js Demo Web Application</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li style="display:none;"><a th:href="@{/}">Home</a></li>
+                    <li><a th:href="@{/about}">About</a></li>
+                    <li><a th:href="@{/contact}">Contact</a></li>
+                    <li><a th:href="@{/grid}">Grid</a></li>
+                    <li><a th:href="@{/form}">Form</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+	<script type="text/javascript" th:src="@{/lib/jquery/dist/jquery.js}"></script>
+	<script type="text/javascript" th:src="@{/lib/bootstrap/dist/js/bootstrap.js}"></script>
+	<script type="text/javascript" th:src="@{/js/site.js}"></script>
+
+<!-- 	<script type="text/javascript" th:src="@{/m2mjs/m2mjs_common.js}"></script> -->
+	
+	<script type="text/javascript" th:src="@{/m2mjs/3.1/m2mjs.js}"></script>
+<!-- 	<script type="text/javascript" th:src="@{/m2mjs/m2mjs.js}"></script> -->
+	<script type="text/javascript" th:src="@{/m2mjs/3.1/myComponents.js}"></script>
+<!-- 	<script type="text/javascript" th:src="@{/m2mjs/m2mjs_validator.js}"></script> -->
+    
+    <script type="text/javascript" th:src="@{/app/grid/common.js}"></script>
+    
+    <div class="container body-content">
+    	<div layout:fragment="content"></div>
+
+	    <hr />
+	    <footer>
+	        <p>&copy; 2019 - m2m-js DemoWebApplication Marcello Podda</p>
+	    </footer>
+    
+    </div>
+    
+</body>
+</html>
