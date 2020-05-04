@@ -1,6 +1,5 @@
-<html xmlns:th="http://www.thymeleaf.org"
-  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+    xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
 
 <table>
     <tr id="simpleGridTemplate1">
@@ -10,15 +9,17 @@
         <td><a th:href="@{/viewPerson/} + '{id}'"><img th:src="@{/images/person-info.png}" /></a></td>
         <td><a th:href="@{/editPerson/} + '{id}'"><img th:src="@{/images/person-edit.png}" /></a></td>
     </tr>
-    
+
     <tr id="simpleGridTemplate">
         <td id="id"></td>
         <td id="name"></td>
         <td><span id="nationality.description"></span> (<span id="nationality.code"></span>)</td>
-        <td><button type="button" class="btn btn-default" id="showPersonInfo" data-toggle="modal" data-target="#viewModal"><img th:src="@{/images/person-info.png}" /></button></td>
-        <td><button type="button" class="btn btn-default" id="editPerson" data-toggle="modal" data-target="#myModal"><img th:src="@{/images/person-edit.png}" /></button></td>
+        <td><button type="button" class="btn btn-default" id="showPersonInfo" data-toggle="modal"
+                data-target="#viewModal"><img th:src="@{/images/person-info.png}" /></button></td>
+        <td><button type="button" class="btn btn-default" id="editPerson" data-toggle="modal"
+                data-target="#myModal"><img th:src="@{/images/person-edit.png}" /></button></td>
     </tr>
-    
+
 </table>
 
 
@@ -39,7 +40,7 @@
         <td id="nationality"></td>
         <td id="genderRenderer"></td>
         <td id="active"></td>
-        <td><input id="comments" type="text" /></td>
+        <td id="comments"><input type="text" id="comments_{id}" /></td>
     </tr>
 </table>
 

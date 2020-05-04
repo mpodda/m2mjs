@@ -5,38 +5,28 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class Nationality {
-	@Id
-	private Integer id;
+public class Nationality extends IdentifiableEntity {
+	private static final long serialVersionUID = -7530724518080768401L;
+
 	private String code;
 	private String description;
-	
-    @OneToMany (fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false,  mappedBy = "nationality")
-    @JsonIgnore
-    private Set<Person> persons;
-	
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false, mappedBy = "nationality")
+	@JsonIgnore
+	private Set<Person> persons;
+
 	public Nationality() {
-		
+
 	}
 
-	public Nationality(Integer id, String code, String description) {
-		this.id = id;
+	public Nationality(String code, String description) {
 		this.code = code;
 		this.description = description;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getCode() {
