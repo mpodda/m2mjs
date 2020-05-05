@@ -552,7 +552,7 @@ class M2MJS_TemplateLoader {
         try {
           templateText.innerHTML = response.data;
         } catch (e) {
-          console.info("e=", e);
+          console.info("Error loading template: ", e);
         }
 
         fragment.appendChild(templateText);
@@ -1480,7 +1480,7 @@ class M2MJS_Grid {
     this.rowSelectedClassName = "selectedGridRow";
     this.rowModifiedClassName = "modifiedGridRow";
 
-    this.defineObjectPaths();
+    //this.defineObjectPaths();
 
     this.onGridRowRender = gridRow => { };
     this.onGridRowSelect = gridRow => { };
@@ -1633,6 +1633,7 @@ class M2MJS_Grid {
   }
 
   renderGrid() {
+    this.defineObjectPaths();
     this.clearGrid();
 
     this.getData().forEach((modelObject, index) => {
@@ -1679,14 +1680,11 @@ class M2MJS_Grid {
   }
 
   get model() {
-    console.info("Get Model");
-    //return this._dataList; //this.modelObject;
     return this.modelObject;
   }
 
   set model(modelObject) {
     this.modelObject = modelObject;
-    //this._dataList = modelObject;
   }
 
   get gridModel() {

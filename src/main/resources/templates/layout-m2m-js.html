@@ -38,7 +38,9 @@
                     <li><a th:href="@{/about}">About</a></li>
                     <li><a th:href="@{/contact}">Contact</a></li>
                     <li><a th:href="@{/grid}">Grid</a></li>
-                    <li><a th:href="@{/form}">Form</a></li>
+                    <!-- <li><a th:href="@{/form}">Form</a></li> -->
+                    <li><a th:href="@{/updateOnStateChange}">State</a></li>
+
                 </ul>
             </div>
         </div>
@@ -52,6 +54,8 @@
     <script type="text/javascript" th:src="@{/m2mjs/components/myComponents.js}"></script>
 
     <script type="text/javascript" th:src="@{/app/common/common.js}"></script>
+
+    <span layout:fragment="local-templates"></span>
 
     <div class="container body-content">
         <div layout:fragment="content"></div>

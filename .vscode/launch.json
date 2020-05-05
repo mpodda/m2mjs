@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-M2MJSApplication<m2m-js>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.mpodda.m2m_js.M2MJSApplication",
+            "projectName": "m2m-js",
+            "args": ""
+        }
+    ]
+}
