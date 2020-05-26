@@ -1,8 +1,12 @@
 package com.mpodda.m2m_js.domain;
 
+import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 public class Person extends IdentifiableEntity {
@@ -12,6 +16,9 @@ public class Person extends IdentifiableEntity {
 	private String gender;
 	private Boolean active;
 	private String comments;
+
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+	private Date birthDate;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Nationality nationality;
@@ -32,6 +39,16 @@ public class Person extends IdentifiableEntity {
 		this.gender = gender;
 		this.active = active;
 		this.comments = comments;
+		this.nationality = nationality;
+	}
+
+	public Person(String name, String gender, Boolean active, String comments, Date birthDate,
+			Nationality nationality) {
+		this.name = name;
+		this.gender = gender;
+		this.active = active;
+		this.comments = comments;
+		this.birthDate = birthDate;
 		this.nationality = nationality;
 	}
 
@@ -73,6 +90,14 @@ public class Person extends IdentifiableEntity {
 
 	public void setNationality(Nationality nationality) {
 		this.nationality = nationality;
+	}
+
+	public Date getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
 	}
 
 	@Override

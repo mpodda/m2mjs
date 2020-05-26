@@ -4,7 +4,7 @@
  */
 
 /** 
- * Version 3.3.2
+ * Version 3.4
  */
 
 /**
@@ -29,6 +29,8 @@
  * 03/05/2020: Bug fixing of 'Validator'
  * 03/05/2020: Add preffix 'M2MJS_' to all classes to avoid name conflict with other libraries
  * 03/05/2020: Switch to Lambdas when possible
+ * 09/05/2020: Add Observer - Observable
+ * 21/05/2020: Performance tunning of 'parseGridRow'
  */
 
 // ------------------------------------------------------------------------------------
@@ -82,10 +84,59 @@ function setObjectValue(path, object, value) {
 }
 
 /*
-    ------------------------
-    -- DateWithArithmetic -- 
-    ------------------------
-   */
+  --------------
+  -- Observer -- 
+  --------------
+*/
+
+class M2MJS_Observer {
+  constructor() {
+    this.update = (observable, data) => { };
+  }
+
+  notify(observable, data) {
+    this.update(observable, data);
+  }
+}
+
+/*
+  ----------------
+  -- Observable -- 
+  ----------------
+*/
+
+class M2MJS_Observable {
+  constructor(id = "") {
+    this._id = id;
+    this.observers = [];
+  }
+
+  addObserver(observer) {
+    this.observers.push(observer);
+  }
+
+  removeObserver(observer) {
+    this.observers = this.observers.filter(obs => obs !== observer);
+  }
+
+  notifyObservers(data) {
+    this.observers.forEach(observer => observer.notify(this, data));
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  set id(value) {
+    this._id = value;
+  }
+}
+
+/*
+  ------------------------
+  -- DateWithArithmetic -- 
+  ------------------------
+*/
 
 /** 
  * Under development 
@@ -120,17 +171,15 @@ class M2MJS_DateWithArithmetic extends Date {
   }
 
   addDay(d) {
-    let newDay = this.getDate() + d;
-    while (newDay > this.getDaysOfMonth()) {
-      newDay = newDay - this.getDaysOfMonth();
-      this.setMonth(this.getMonth() + 1);
-    }
+    this.setDate(this.getDate() + d);
 
-    this.setDate(newDay);
+    return this;
   }
 
   addMonth(m) {
     this.setMonth(this.getMonth() + m);
+
+    return this;
   }
 
   toDate() {
@@ -177,6 +226,8 @@ class M2MJS_DateWithArithmetic extends Date {
   }
 
   timeString() {
+    //console.info("date=", this.toDate(), "h=", this.toDate().getHours(), "month=", this.getMonth());
+
     let timeString = "";
     const hoursPosition = this._format.toUpperCase().indexOf("HH");
 
@@ -184,7 +235,7 @@ class M2MJS_DateWithArithmetic extends Date {
       const timeSeparator = this._format.substring(hoursPosition + 2, hoursPosition + 3);
 
       if (this.getHours() < 10) {
-        timeString = `$0{this.getHours()}`;
+        timeString = `0${this.getHours()}`;
       } else {
         timeString = `${this.getHours()}`;
       }
@@ -227,8 +278,13 @@ class M2MJS_DateWithArithmetic extends Date {
     let dateParts = dateString.split(separator);
 
     let date, month, year;
+
     for (let i = 0; i < dateFormatParts.length; i++) {
       if (dateFormatParts[i] === "dd") {
+        if (dateParts[i].trim() === '') {
+          throw "Date is empty!";
+        }
+
         date = Number(dateParts[i]);
         if (Number.isNaN(date)) {
           throw `'${dateParts[i]}' : Is not a number`;
@@ -236,6 +292,9 @@ class M2MJS_DateWithArithmetic extends Date {
       }
 
       if (dateFormatParts[i] === "MM") {
+        if (dateParts[i].trim() === '') {
+          throw "Month is empty!";
+        }
         month = Number(dateParts[i]);
         if (Number.isNaN(month)) {
           throw `'${dateParts[i]}' : Is not a number`;
@@ -243,6 +302,9 @@ class M2MJS_DateWithArithmetic extends Date {
       }
 
       if (dateFormatParts[i] === "yyyy") {
+        if (dateParts[i].trim() === '') {
+          throw "Year is empty!";
+        }
         year = Number(dateParts[i].substring(0, 4));
 
         if (Number.isNaN(year)) {
@@ -274,7 +336,6 @@ class M2MJS_DateWithArithmetic extends Date {
         seconds = 0;
 
       for (let i = 0; i < timeFormatParts.length; i++) {
-
         if (timeFormatParts[i].toUpperCase() === "HH") {
           hours = Number(timeParts[i].substring(timePosition, timeParts[0].length));
           if (Number.isNaN(hours)) {
@@ -282,7 +343,7 @@ class M2MJS_DateWithArithmetic extends Date {
           }
         }
 
-        if (timeFormatParts[i].toUpperCase() === "mm") {
+        if (timeFormatParts[i].toLowerCase() === "mm") {
           minutes = Number(timeParts[i]);
           if (Number.isNaN(minutes)) {
             throw `'${timeParts[i]}' : Is not a number`;
@@ -302,8 +363,33 @@ class M2MJS_DateWithArithmetic extends Date {
       thisDate.setSeconds(seconds);
     }
 
-    //console.info("return: date=", thisDate.toString(format));
     return thisDate;
+  }
+
+  static cloneDate(date) {
+    if (date == null) {
+      return null;
+    }
+
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+  }
+
+  static createDate(date, month, year) {
+    return new Date(year, month - 1, date, 0, 0, 0);
+  }
+
+  static equals(date1, date2, compaireTime = false) {
+    if ((date1.getDate() === date2.getDate() && date1.getMonth() === date2.getMonth() && date1.getFullYear() === date2.getFullYear())) {
+      if (!compaireTime) {
+        return true;
+      }
+
+      if (date1.getHours() === date2.getHours() && date1.getMinutes() === date2.getMinutes() && date1.getSeconds() === date2.getSeconds()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   equals(date, compaireTime = false) {
@@ -664,6 +750,22 @@ class M2MJS_XBrowser {
     target["on" + eventName] = handlerName;
   }
 
+  static removeHandlers(target, eventName) {
+    if (target.addEventListener) {
+      console.info("removeHandler");
+
+      target.addEventListener(eventName, (e) => {
+        e.stopEventPropagation();
+      }, true);
+
+      //return;
+    }
+
+    // if (target.detachEvent) {
+    //   target.attachEvent("on" + eventName, handlerName);
+    // }
+  }
+
   static offsetTop(relativeElement) {
     if (window.event) {
       return relativeElement.offsetTop - event.clientY;
@@ -714,7 +816,7 @@ class M2MJS_XBrowser {
 class M2MJS_Component {
   constructor(componentId, element) {
     this.componentId = componentId;
-    this.element = element;
+    this._element = element;
     this.type = "";
   }
 
@@ -729,39 +831,43 @@ class M2MJS_Component {
   setValue(value) {
     this.type = typeof value;
 
-    if (this.element === null) {
+    if (this._element === null) {
       return;
     }
 
-    if (this.element.type && this.element.type.toLowerCase() == "checkbox") {
-      this.element.checked = value;
+    if (this._element.type && this._element.type.toLowerCase() == "checkbox") {
+      this._element.checked = value;
     } else {
       if (
-        this.element.tagName.toLowerCase() == "input" ||
-        this.element.tagName.toLowerCase() == "textarea" ||
-        this.element.tagName.toLowerCase() == "select"
+        this._element.tagName.toLowerCase() == "input" ||
+        this._element.tagName.toLowerCase() == "textarea" ||
+        this._element.tagName.toLowerCase() == "select"
       ) {
-        this.element.value = value;
+        this._element.value = value;
       } else {
-        this.element.innerHTML = value;
+        this._element.innerHTML = value;
       }
     }
   }
 
   getValue() {
-    if (this.element === null) {
+    if (this._element === null) {
       return null;
     }
 
-    if (this.element.type && this.element.type.toLowerCase() == "checkbox") {
-      return this.element.checked;
+    if (this._element.type && this._element.type.toLowerCase() == "checkbox") {
+      return this._element.checked;
     }
 
     if (this.type.toLowerCase() == "number") {
-      return Number(this.element.value);
+      return Number(this._element.value);
     }
 
-    return this.element.value;
+    return this._element.value;
+  }
+
+  get element() {
+    return this._element;
   }
 }
 
@@ -1668,6 +1774,7 @@ class M2MJS_Grid {
 
       this.gridContainer.appendChild(gridRow.renderGridRow());
     });
+
   }
 
   clearGrid() {
@@ -1790,18 +1897,18 @@ class M2MJS_GridRow {
 
     this.gridRowCurrentClass = this.gridRowContainer.className;
 
-    const gridRow = this;
+    // const gridRow = this;
 
     this.objectPaths.forEach((objectPath, index) => {
-      const objectValue = gridRow.getObjectValue(objectPath);
-      gridRow.parseGridRow(objectPath, objectValue);
+      const objectValue = /*gridRow*/this.getObjectValue(objectPath);
+      this.parseGridRow(objectPath, objectValue);
 
-      let element = M2MJS_XBrowser.getElement(gridRow.gridRowContainer, objectPath);
+      let element = M2MJS_XBrowser.getElement(this.gridRowContainer, objectPath);
 
       //TODO: Test this
       if (element === null) {
-        if (gridRow.gridRowContainer.id === objectPath) {
-          element = gridRow.gridRowContainer;
+        if (this.gridRowContainer.id === objectPath) {
+          element = this.gridRowContainer;
         }
       }
 
@@ -1810,11 +1917,11 @@ class M2MJS_GridRow {
         element.innerHTML = objectValue;
 
         //Components (If any)
-        gridRow.components.forEach((component, index) => {
+        this.components.forEach((component, index) => {
           if (component["id"] == objectPath) {
             element.innerHTML = elementClone.innerHTML;
             let cFunc = component["code"];
-            cFunc(gridRow, objectPath, element, objectValue);
+            cFunc(this, objectPath, element, objectValue);
           }
         });
       }
@@ -1823,41 +1930,41 @@ class M2MJS_GridRow {
     //Renderers (If any)
     this.renderers.forEach(async (renderer, index) => {
       let element = M2MJS_XBrowser.getElement(
-        gridRow.gridRowContainer,
+        this.gridRowContainer,
         renderer["name"]
       );
 
       if (!element) {
-        if (gridRow.gridRowContainer.id === renderer["name"]) {
-          element = gridRow.gridRowContainer;
+        if (this.gridRowContainer.id === renderer["name"]) {
+          element = this.gridRowContainer;
         }
       }
 
       if (element) {
         let rFunc = renderer["code"];
-        await rFunc(element, gridRow._modelObject, gridRow);
+        await rFunc(element, this._modelObject, this);
       }
     });
 
     M2MJS_XBrowser.addHandler(this.gridRowContainer, "click", (e) => {
-      gridRow.onBeforeSelect();
+      this.onBeforeSelect();
 
-      gridRow.gridRowContainer.className = gridRow.selectedClass;
-      gridRow.isSelected = true;
+      this.gridRowContainer.className = this.selectedClass;
+      this.isSelected = true;
 
-      gridRow.onSelect();
+      this.onSelect();
     });
 
     M2MJS_XBrowser.addHandler(
       this.gridRowContainer,
       "mouseover",
       (e) => {
-        if (gridRow.gridRowContainer.id == "view") {
-          gridRow.gridRowContainer.className = gridRow.mouseOverClass;
+        if (this.gridRowContainer.id == "view") {
+          this.gridRowContainer.className = this.mouseOverClass;
         }
 
-        if (!gridRow.isSelected) {
-          gridRow.gridRowContainer.className = gridRow.mouseOverClass;
+        if (!this.isSelected) {
+          this.gridRowContainer.className = this.mouseOverClass;
         }
       }
     );
@@ -1866,8 +1973,8 @@ class M2MJS_GridRow {
       this.gridRowContainer,
       "mouseout",
       () => {
-        if (!gridRow.isSelected) {
-          gridRow.gridRowContainer.className = gridRow.gridRowCurrentClass;
+        if (!this.isSelected) {
+          this.gridRowContainer.className = this.gridRowCurrentClass;
         }
       }
     );
@@ -1920,16 +2027,18 @@ class M2MJS_GridRow {
   parseGridRow(objectPath, objectValue) {
     let toReplace = "{" + objectPath + "}";
 
-    this.gridRowContainer.childNodes.forEach((childNode, index) => {
-      try {
-        if (childNode.innerHTML.indexOf(toReplace) > -1) {
-          childNode.innerHTML = childNode.innerHTML.replace(
-            eval("/" + toReplace + "/g"),
-            objectValue
-          );
-        }
-      } catch (e) { }
-    });
+    if (this.gridRowContainer.innerHTML.indexOf(toReplace) > -1) {
+      this.gridRowContainer.childNodes.forEach((childNode, index) => {
+        try {
+          if (childNode.innerHTML.indexOf(toReplace) > -1) {
+            childNode.innerHTML = childNode.innerHTML.replace(
+              eval("/" + toReplace + "/g"),
+              objectValue
+            );
+          }
+        } catch (e) { }
+      });
+    }
   }
 
   getObjectValue(objectPath) {

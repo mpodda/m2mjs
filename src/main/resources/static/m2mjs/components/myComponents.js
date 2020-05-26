@@ -2,7 +2,7 @@ class SelectComponent extends M2MJS_Component {
 	constructor(selectElement) {
 		super(selectElement.id, selectElement);
 
-		this.element = selectElement;
+		//this.element = selectElement;
 		this._dataList = null;
 		this._idProperty = null;
 	}
@@ -98,7 +98,7 @@ class ActivationButton extends M2MJS_Component {
 	constructor(id, element) {
 		super(id, element);
 
-		this.element = element;
+		//this.element = element;
 		this.isActive = (element.children[0].className == "icon-check" ? true : false);
 
 		this.initEvents();
@@ -169,9 +169,10 @@ class RadioSet extends M2MJS_Component {
 
 class GenderView extends M2MJS_Component {
 	constructor(id, element) {
-		super(id, null);
+		//super(id, null);
+		super(id, element);
 
-		this.element = element;
+		// this.element = element;
 
 		this.value = null;
 	}
@@ -187,8 +188,8 @@ class GenderView extends M2MJS_Component {
 
 	getText(value) {
 		switch (value) {
-			case "M": return "Men";
-			case "W": return "Women";
+			case "M": return "Man";
+			case "W": return "Woman";
 			default: return value;
 		}
 	}
@@ -196,9 +197,9 @@ class GenderView extends M2MJS_Component {
 
 class ActiveStatusView extends M2MJS_Component {
 	constructor(id, element) {
-		super(id, null);
-
-		this.element = element;
+		//super(id, null);
+		super(id, element);
+		//this.element = element;
 
 		this.value = null;
 	}
@@ -223,9 +224,9 @@ class ActiveStatusView extends M2MJS_Component {
 
 class NationalityView extends M2MJS_Component {
 	constructor(id, element) {
-		super(id, null);
-
-		this.element = element;
+		//super(id, null);
+		super(id, element);
+		// this.element = element;
 
 		this.value = null;
 	}
@@ -240,6 +241,24 @@ class NationalityView extends M2MJS_Component {
 	}
 
 	getText(value) {
+		if (value === null) {
+			return 'NULL';
+		}
+
 		return `${value.description} (${value.code})`;
+	}
+}
+
+class SimpleComponent extends M2MJS_Component {
+	constructor(id, element) {
+		super(id, element);
+	}
+
+	getValue() {
+		return this.element.innerHTML;
+	}
+
+	setValue(value) {
+		this.element.innerHTML = value;
 	}
 }

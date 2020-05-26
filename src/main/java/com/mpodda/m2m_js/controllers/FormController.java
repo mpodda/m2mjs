@@ -13,6 +13,11 @@ public class FormController {
 		return "/application/form/simpleFormWithValidation";
 	}
 
+	@RequestMapping("/simpleEditForm")
+	public String simpleEditForm() {
+		return "/application/form/simpleEditForm";
+	}
+
 	@RequestMapping("/viewPerson/{id}")
 	public String viewPerson(@PathVariable Long id, Model model) {
 		model.addAttribute("id", id);
@@ -25,5 +30,10 @@ public class FormController {
 		model.addAttribute("id", id);
 
 		return "/application/form/simpleEditForm";
+	}
+
+	@RequestMapping("/ooTest")
+	public String observerObservableTest() {
+		return "/application/form/ooTest";
 	}
 }

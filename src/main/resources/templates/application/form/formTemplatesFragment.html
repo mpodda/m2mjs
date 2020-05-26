@@ -1,0 +1,331 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="formTemplatesfiles">
+    <meta charset="UTF-8" />
+    <title>.</title>
+</head>
+
+<body>
+    <span th:fragment="form-templates">
+        <template id="viewFormTemplate">
+            <table class="table">
+                <tr>
+                    <td class="col-xs-1">Id: </td>
+                    <td id="personIdView"></td>
+                </tr>
+                <tr>
+                    <td>Name: </td>
+                    <td id="personNameView"></td>
+                </tr>
+                <tr>
+                    <td>Gender: </td>
+                    <td id="personGenderView"></td>
+                </tr>
+                <tr>
+                    <td>Nationality: </td>
+                    <td id="personNationalityView"></td>
+                </tr>
+                <tr>
+                    <td>Active: </td>
+                    <td id="personActiveView"></td>
+                </tr>
+                <tr>
+                    <td>Comments: </td>
+                    <td id="personCommentsView"></td>
+                </tr>
+            </table>
+        </template>
+
+        <template id="editFormTemplate">
+            <table class="table">
+                <tr>
+                    <td>Id: </td>
+                    <td colspan="2"><input type="text" id="personId" readonly="readonly" /> </td>
+                </tr>
+                <tr>
+                    <td class="col-xs-1">Name: </td>
+                    <td class="col-xs-6"><input type="text" id="personName" class="input-sm form-control" /></td>
+                    <td id="personNameErrorLabel" class="errorLabel col-xs-3"></td>
+                </tr>
+                <tr>
+                    <td class="col-xs-1">Birth date: </td>
+                    <td class="col-xs-6">
+                        <div class="input-group">
+                            <input type="text" id="personBirthDate" class="form-control" />
+                            <span class="input-group-btn">
+                                <button id="btnPersonBirthDate" type="button" class="btn btn-default"><span
+                                        class="icon-calendar"></span></button>
+                            </span>
+                        </div>
+                    </td>
+                    <td id="personBirthDateErrorLabel" class="errorLabel col-xs-3"></td>
+                </tr>
+                <tr>
+                    <td>Gender: </td>
+                    <td>
+                        <label for="personGenderManRadio">Man: </label> <input type="radio" name="personGender"
+                            value="M" id="personGenderManRadio" />
+                        <label for="personGenderWomanRadio">Woman: </label> <input type="radio" name="personGender"
+                            value="W" id="personGenderWomanRadio" />
+                    </td>
+                    <td id="personGenderErrorLabel" class="errorLabel col-xs-3"></td>
+                </tr>
+                <tr>
+                    <td>Nationality: </td>
+                    <td><select id="personNationality"></select></td>
+                    <td id="personNationalityErrorLabel" class="errorLabel col-xs-3"></td>
+                </tr>
+                <tr>
+                    <td>Active: </td>
+                    <td><button id="personActive" type="button" class="btn btn-primary"><i class="icon-check"></i>
+                            <span></span></button></td>
+                    <td id="personActiveStatusErrorLabel" class="errorLabel col-xs-3"></td>
+                </tr>
+                <tr>
+                    <td>Comments: </td>
+                    <td><textarea id="personComments" class="form-control" cols="100" rows="5"></textarea> </td>
+                    <td id="personCommentsErrorLabel" class="errorLabel col-xs-3"></td>
+                </tr>
+            </table>
+        </template>
+
+        <!-- ======================================= Calendar Templates ======================================= -->
+
+        <!-- Calendar Template -->
+        <template id="daysOfMonthTemplate">
+            <div class="calendar-place-holder">
+                <table class="table calendar" style="height: 100%; margin-bottom: 0px;">
+                    <thead>
+                        <tr>
+                            <td class="head" colspan="8" style="padding: 0px;">
+                                <table class="table navigation">
+                                    <tr>
+                                        <td style="padding: 0px;"><button type="button" id="previousMonth"
+                                                class="btn btn-secondary btn-sm">&lt;</button>
+                                        </td>
+                                        <td class="selected-month-place-holder" id="selectedMonth"></td>
+                                        <td style="padding: 0px; text-align: right;"><button type="button"
+                                                id="nextMonth" class="btn btn-secondary btn-sm">&gt;</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr class="weekDays" id="weekDayNamesPlaceHolder"></tr>
+                    </thead>
+                    <tbody class="days" id="daysPlaceHolder">
+
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="8">
+                                <div class="today-button-placeholder">
+                                    <button id="today" type="button" class="btn btn-secondary btn-sm today-button"
+                                        style="font-weight: bold;">Today</button></div>
+                            </td>
+                        </tr>
+                        <tr id="timePlaceHolder">
+                            <td colspan="8"
+                                style="width:100%; text-align: center; font-weight: bolder; /*border: red 1px solid;*/">
+                                <button id="cal_btn_time" type="button" class="btn btn-secondary btn-sm time-button"
+                                    style="font-weight: bold;"><span id="cal_time"></span></button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </template>
+        <!-- / Calendar Template -->
+
+        <!-- Week Day Name Template -->
+        <template id="weekDayNamesTemplate">
+            <td id="weekDay"></td>
+        </template>
+        <!-- / Week Day Name Template -->
+
+        <!-- Day Template -->
+        <template id="daysTemplate">
+            <tr>
+                <td id="day1"><span></span></td>
+                <td id="day2"></td>
+                <td id="day3"></td>
+                <td id="day4"></td>
+                <td id="day5"></td>
+                <td id="day6"></td>
+                <td id="day7"></td>
+            </tr>
+        </template>
+        <!-- / Day Template -->
+
+        <template id="monthsOfAYearTemplate">
+            <div class="calendar-place-holder">
+                <table class="table calendar">
+                    <thead>
+                        <tr>
+                            <td style="padding: 0px;"><button type="button" id="previousYear"
+                                    class="btn btn-secondary btn-sm">&lt;</button>
+                            </td>
+                            <td style="text-align: center;">
+                                <button id="selectedYear" type="button" class="btn btn-secondary btn-sm today-button"
+                                    style="font-weight: bold;"></button>
+                            </td>
+                            <td style="padding: 0px; text-align: right;"><button type="button" id="nextYear"
+                                    class="btn btn-secondary btn-sm">&gt;</button></td>
+                        </tr>
+                    </thead>
+                    <tbody class="months" style="border-collapse: collapse;">
+                        <tr>
+                            <td id="month1"></td>
+                            <td id="month2"></td>
+                            <td id="month3"></td>
+
+                        </tr>
+                        <tr>
+                            <td id="month4"></td>
+                            <td id="month5"></td>
+                            <td id="month6"></td>
+                        </tr>
+                        <tr>
+                            <td id="month7"></td>
+                            <td id="month8"></td>
+                            <td id="month9"></td>
+                        </tr>
+                        <tr>
+                            <td id="month10"></td>
+                            <td id="month11"></td>
+                            <td id="month12"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="8">
+                                <div class="today-button-placeholder">
+                                    <button id="today" type="button" class="btn btn-secondary btn-sm today-button"
+                                        style="font-weight: bold;">Today</button></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="8"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </template>
+
+        <template id="yearsOfADecadeTemplate">
+            <div class="calendar-place-holder">
+                <table class="table calendar">
+                    <thead>
+                        <tr>
+                            <td style="padding: 0px;"><button type="button" id="previousDecade"
+                                    class="btn btn-secondary btn-sm">&lt;</button>
+                            </td>
+                            <td style="text-align: center;">
+                                <button id="selectedDecade" type="button" class="btn btn-secondary btn-sm today-button"
+                                    style="font-weight: bold;"></button>
+                            </td>
+                            <td style="padding: 0px; text-align: right;"><button type="button" id="nextDecade"
+                                    class="btn btn-secondary btn-sm">&gt;</button></td>
+                        </tr>
+                    </thead>
+                    <tbody class="months" style="border-collapse: collapse;">
+                        <tr>
+                            <td id="year1"></td>
+                            <td id="year2"></td>
+                            <td id="year3"></td>
+
+                        </tr>
+                        <tr>
+                            <td id="year4"></td>
+                            <td id="year5"></td>
+                            <td id="year6"></td>
+                        </tr>
+                        <tr>
+                            <td id="year7"></td>
+                            <td id="year8"></td>
+                            <td id="year9"></td>
+                        </tr>
+                        <tr>
+                            <td id="year10"></td>
+                            <td id="year11"></td>
+                            <td id="year12"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="8">
+                                <div class="today-button-placeholder">
+                                    <button id="today" type="button" class="btn btn-secondary btn-sm today-button"
+                                        style="font-weight: bold;">Today</button></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="8"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </template>
+
+        <template id="chooseTimeTemplate">
+            <div class="calendar-place-holder">
+                <table class="table calendar">
+                    <thead>
+                        <tr>
+                            <td colspan="4" class="time-date">
+                                <!-- <div id="selectedDateTime"></div> -->
+                                <button class="btn selected-date-time" id="selectedDateTime"></button>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody class="time-place-holder">
+                        <tr>
+                            <td><button class="btn" id="cal_time_hours_plus"><span
+                                        class="glyphicon glyphicon-chevron-up"></span></button></td>
+                            <td></td>
+                            <td><button class="btn" id="cal_time_minutes_plus"><span
+                                        class="glyphicon glyphicon-chevron-up"></span></button></td>
+                            <td><button class="btn" style="font-weight: bolder;" id="cal_time_minutes_plus_five">
+                                    + 5
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="time-value">
+                            <td id="cal_time_hours"></td>
+                            <td>:</td>
+                            <td id="cal_time_minutes"></td>
+                            <td>
+                                <button class="btn" style="font-weight: bolder;" id="cal_time_12_hours_plus_minus">
+                                    &#177; 12
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><button class="btn" id="cal_time_hours_minus"><span
+                                        class="glyphicon glyphicon-chevron-down"></span></button></td>
+                            <td></td>
+                            <td><button class="btn" id="cal_time_minutes_minus"><span
+                                        class="glyphicon glyphicon-chevron-down"></span></button></td>
+                            <td><button class="btn" style="font-weight: bolder;" id="cal_time_minutes_minus_five">
+                                    - 5
+                                </button></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="8" class="time-select"><button class="btn" id="cal_select_time">OK</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="8">&nbsp;</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </template>
+        <!-- ====================================== / Calendar Templates ====================================== -->
+
+    </span>
+</body>
+
+</html>

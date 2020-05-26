@@ -42,8 +42,6 @@ async function loadFormTemplate(templateId) {
 	return await M2MJS_TemplateLoader.loadTemplate(formTemplatePath, templateId);
 }
 
-
-
 async function load(url) {
 	return new Promise((resolve, reject) => {
 		M2MJS_Connection.get(url).then((response) => {
@@ -60,6 +58,9 @@ async function loadById(url, id) {
 	});
 }
 
+async function loadFromCurrentPage(templateId) {
+	return await M2MJS_TemplateLoader.loadTemplateFromCurrentPage(templateId);
+}
 
 async function createNew(url) {
 	return new Promise((resolve, reject) => {

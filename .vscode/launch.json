@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - ObsObsApp",
+            "request": "launch",
+            "mainClass": "com.mpodda.m2m_js.trash.observer_observable_test.ObsObsApp",
+            "projectName": "m2m-js"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-M2MJSApplication<m2m-js>",
             "request": "launch",
             "cwd": "${workspaceFolder}",

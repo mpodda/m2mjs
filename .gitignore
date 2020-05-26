@@ -224,3 +224,28 @@ target/classes/static/m2mjs/2.0/m2mjs.js
 target/classes/static/m2mjs/2.0/myComponents.js
 target/classes/static/m2mjs/3.3.2/m2mjs.js
 target/classes/static/m2mjs/components/myComponents.js
+src/main/java/com/mpodda/m2m_js/trash/observer_observable_test/NewsAgency.java
+src/main/java/com/mpodda/m2m_js/trash/observer_observable_test/NewsPaperChanel.java
+src/main/java/com/mpodda/m2m_js/trash/observer_observable_test/ObsObsApp.java
+src/main/java/com/mpodda/m2m_js/trash/observer_observable_test/TvChannel.java
+target/classes/templates/application/form/ooTest.html
+target/classes/com/mpodda/m2m_js/controllers/StateController.class
+target/classes/com/mpodda/m2m_js/trash/observer_observable_test/NewsAgency.class
+target/classes/com/mpodda/m2m_js/trash/observer_observable_test/NewsPaperChanel.class
+target/classes/com/mpodda/m2m_js/trash/observer_observable_test/ObsObsApp.class
+target/classes/com/mpodda/m2m_js/trash/observer_observable_test/TvChannel.class
+target/classes/static/app/form/observerObservableTest.js
+target/classes/static/app/form/simpleEditForm.js
+target/classes/static/app/state/updateOnStateChange.js
+target/classes/static/css/calendar.css
+target/classes/static/js/Observer-Obervable.js
+target/classes/static/m2mjs/3.4/m2mjs.js
+target/classes/static/m2mjs/components/Calendar - Copy.js
+target/classes/static/m2mjs/components/Calendar.js
+target/classes/templates/application/form/formTemplatesFragment.html
+target/classes/templates/application/state/updateOnStateChange.html
+.vscode/launch.json
+src/main/resources/static/m2mjs/components/Calendar - Copy.js
+src/main/resources/templates/application/form/ooTest.html
+src/main/resources/static/app/form/observerObservableTest.js
+src/main/resources/static/js/Observer-Obervable.js

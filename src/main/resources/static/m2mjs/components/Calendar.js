@@ -64,6 +64,7 @@ class CalendarParameters {
     /** @private */ this._calendarDayClassName = "calendarDay";
     /** @private */ this._dateFormat = "dd/MM/yyyy";
     /** @private */ this._dateSeparator = "/";
+    /** @private */ this._localeString = "el-GR";
   }
 
   set weekDays(weekDays) {
@@ -137,6 +138,14 @@ class CalendarParameters {
   get dateSeparator() {
     return this._dateSeparator;
   }
+
+  get localeString() {
+    return this._localeString;
+  }
+
+  set localeString(value) {
+    this._localeString = value;
+  }
 }
 
 //#region Constants
@@ -160,11 +169,6 @@ class Calendar extends M2MJS_Component {
   constructor(id, valueElement, eventElement, calendarParameters) {
     super(id, valueElement);
 
-    //#region Private Members
-    this._calendarParameters = calendarParameters;
-    this._date = new Date();
-
-    //#endregion Private Members
 
     /** @public */ this.onValueSet = (value) => { };
 
@@ -388,10 +392,12 @@ class Calendar extends M2MJS_Component {
             break;
           case observable.states.MONTHS_OF_A_YEAR_STATE:
             calendarElement = this._templates.monthsOfAYearTemplate;
-            //console.info("calendarElement=", calendarElement);
             break;
           case observable.states.YEARS_OF_A_DECADE:
             calendarElement = this._templates.yearsOfADecadeTemplate;
+            break;
+          case observable.states.TIME_STATE:
+            calendarElement = this._templates.chooseTimeTemplate;
             break;
         }
 
@@ -406,7 +412,6 @@ class Calendar extends M2MJS_Component {
         });
 
         this._calendarElement = calendarElement;
-
       }
 
       get calendarElement() {
@@ -486,7 +491,6 @@ class Calendar extends M2MJS_Component {
         this._templateRenderer = templateRenderer;
 
         this.update = (observable, state) => {
-          // console.info("CalendarVisibilityObserver:: update", state);
           this.onUpdateSate(observable, state);
         };
       }
@@ -532,28 +536,27 @@ class Calendar extends M2MJS_Component {
 
         this._templateRenderer = templateRenderer;
         this._calendar = calendar;
-
-        //console.info("date=", date);
-
         this._date = (date === null ? new Date() : date);
         this._showDate = this._date;
 
         this.update = async (observable, data) => {
-          //console.info(observable instanceof Calendar.CalendarValue);
-          // console.info("update=", observable, "id=", observable.id, "data=", data, data instanceof Date);
-          //await this.onUpdateSate(observable, state);
-
           if (observable.id === "CalendarValue") {
             this._date = M2MJS_DateWithArithmetic.cloneDate(data);
+            this.showDate = M2MJS_DateWithArithmetic.cloneDate(data);
           } else {
-            console.info("Paint calendar");
+            // console.info("Paint calendar");
             await this.onUpdateSate(observable, data);
           }
         };
 
         this.onSelectDate = (date) => { };
         this.onSelectMonth = (month, year) => { };
+        this.onSelectYear = (year) => { };
+        this.onSelectTime = (hour, minute) => { };
+        this.onCancelTime = () => { };
 
+
+        //#region  Months Component
         this.MonthsComponent = class extends M2MJS_Component {
           constructor(id, element, data) {
             super(id, element);
@@ -566,6 +569,7 @@ class Calendar extends M2MJS_Component {
           }
 
           init(data) {
+            // console.info("init");
             this.form.addComponent(new M2MJS_Component("month1", this.element.querySelector("#month1")));
             this.form.addComponent(new M2MJS_Component("month2", this.element.querySelector("#month2")));
             this.form.addComponent(new M2MJS_Component("month3", this.element.querySelector("#month3")));
@@ -580,9 +584,11 @@ class Calendar extends M2MJS_Component {
             this.form.addComponent(new M2MJS_Component("month12", this.element.querySelector("#month12")));
 
             this.form.modelObject = data;
+
             for (let month = 1; month <= 12; month++) {
-              //this.element.querySelector("#month1")
+
               M2MJS_XBrowser.addHandler(this.element.querySelector(`#month${month}`), "click", (e) => {
+                // console.info("click on ", `month${month}`);
                 this.month = month;
                 this.onSelect();
               });
@@ -598,28 +604,218 @@ class Calendar extends M2MJS_Component {
           }
 
         };
+
+        this.monthsComponent = null;
+        this.monthsForm = null;
+        //#endregion Months Component
+
+        //#region Years Component
+        this.YearsComponent = class extends M2MJS_Component {
+          constructor(id, element, decadeYears) {
+            super(id, element);
+
+            //this.form = new M2MJS_Form();
+            this.year = -1;
+
+            this.onSelect = () => { };
+
+            this.initEvents(decadeYears);
+            this.renderYears(decadeYears);
+          }
+
+          initEvents(decadeYears) {
+            decadeYears.forEach((year, index) => {
+              M2MJS_XBrowser.addHandler(this.element.querySelector(`#year${index + 1}`), "click", async (e) => {
+                this.year = this.element.querySelector(`#year${index + 1}`).innerHTML;
+                //console.info("year=", this.year);
+                this.onSelect();
+              });
+            });
+          }
+
+          renderYears(decadeYears) {
+            // console.info("element = ", this.element);
+
+            decadeYears.forEach((year, index) => {
+              this.element.querySelector(`#year${index + 1}`).innerHTML = year;
+            });
+          }
+
+          set decadeYears(value) {
+            this.renderYears(value);
+          }
+
+          getValue() {
+            // console.info("getValue::year=", this.year);
+            return this.year;
+          }
+
+          setValue(value) {
+            this.year = value;
+          }
+        };
+
+        this.yearsComponent = null;
+        this.yearsForm = null;
+
+        //#endregion Years Component
+
+        //#region Time Component
+        this.TimeComponent = class extends M2MJS_Component {
+          constructor(id, element, time) {
+            super(id, element);
+            this._time = time;
+
+            this.onSelect = (time) => { };
+            this.onCancel = () => { };
+            this.initEvents();
+            this.renderTime();
+          }
+
+          initEvents() {
+            /*Plus One hour */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#cal_time_hours_plus"), "click", async (e) => {
+              this._time.h++;
+              if (this._time.h === 24) {
+                this._time.h = 0;
+              }
+
+              this.renderTimeHours();
+            });
+
+            /*Plus one minute */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#cal_time_minutes_plus"), "click", async (e) => {
+              this._time.m++;
+              if (this._time.m === 60) {
+                this._time.m = 0;
+              }
+
+              this.renderTimeMinutes();
+            });
+
+            /*Minus one hour */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#cal_time_hours_minus"), "click", async (e) => {
+              this._time.h--;
+              if (this._time.h === -1) {
+                this._time.h = 23;
+              }
+
+              this.renderTimeHours();
+            });
+
+            /* Minus one minute */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#cal_time_minutes_minus"), "click", async (e) => {
+              this._time.m--;
+              if (this._time.m === -1) {
+                this._time.m = 59;
+              }
+
+              this.renderTimeMinutes();
+            });
+
+            /* Plus five minutes */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#cal_time_minutes_plus_five"), "click", async (e) => {
+              this._time.m += 5;
+              if (this._time.m >= 59) {
+                this._time.m = this._time.m - 60;
+              }
+
+              this.renderTimeMinutes();
+            });
+
+            /* Minus five minutes */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#cal_time_minutes_minus_five"), "click", async (e) => {
+              this._time.m -= 5;
+              if (this._time.m < 0) {
+                this._time.m = this._time.m + 60;
+              }
+
+              this.renderTimeMinutes();
+            });
+
+            /* Plus / Minus 12 hours */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#cal_time_12_hours_plus_minus"), "click", async (e) => {
+              this._time.h += 12;
+              if (this._time.h > 24) {
+                this._time.h -= 24;
+              }
+
+              if (this._time.h === 24) {
+                this._time.h = 0;
+              }
+
+              this.renderTimeHours();
+            });
+
+            /* Select Time */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#cal_select_time"), "click", async (e) => {
+              this.onSelect(this._time);
+            });
+
+            /* Cancel Time Form */
+            M2MJS_XBrowser.addHandler(this.element.querySelector("#selectedDateTime"), "click", async (e) => {
+              this.onCancel();
+            });
+          }
+
+          renderTime() {
+            this.renderTimeHours();
+            this.renderTimeMinutes();
+          }
+
+          renderTimeHours() {
+            this.element.querySelector("#cal_time_hours").innerHTML = this._time.h > 9 ? `${this._time.h}` : `0${this._time.h}`;
+          }
+
+          renderTimeMinutes() {
+            this.element.querySelector("#cal_time_minutes").innerHTML = this._time.m > 9 ? `${this._time.m}` : `0${this._time.m}`;
+          }
+
+          set time(value) {
+            this._time = value;
+            this.renderTime(this._time);
+          }
+
+          setValue(value) {
+            this._time = value;
+          }
+
+          get value() {
+            return this._time;
+          }
+
+        };
+        this.timeComponent = null;
+        //this.timeForm = null;
+        //#endregion Time Component
+
       }
 
       async onUpdateSate(observable, state) {
         switch (state) {
           case observable.states.MONTH_STATE:
-            //console.info("render days of month", "state=", state, "currentTemplate=", this._templateRenderer.calendarElement);
-            // console.info("this._calendar.date=", this._calendar);
-            // console.info("this.showDate=", this._showDate);
-
-            //this._date = this.cloneDate(this._date); // ???? TODO: Investigate later
-            await this.renderWeekDays();
-            await this.renderDaysOfMonth(/*this._date*/this._showDate);
+            await this.renderDaysForm();
             break;
           case observable.states.MONTHS_OF_A_YEAR_STATE:
-            console.info("render months of a year", "state=", state, "currentTemplate=", this._templateRenderer.calendarElement);
-
-            await this.renderMonthsOfAYear();
+            await this.renderMonthsForm();
+            break;
+          case observable.states.YEARS_OF_A_DECADE:
+            await this.renderDecadeForm();
+            break;
+          case observable.states.TIME_STATE:
+            await this.renderTimeForm();
             break;
         }
       }
 
-      //#region Render Calendar Month
+      //#region Days Form
+      async renderDaysForm() {
+        await this.renderWeekDays();
+        await this.renderDaysOfMonth(this._showDate);
+        await this.renderTimeOfDate();
+
+      }
+
       async renderWeekDays() {
         const weekDayNamesTemplate = await M2MJS_TemplateLoader.loadTemplateFromCurrentPage("weekDayNamesTemplate");
 
@@ -646,7 +842,6 @@ class Calendar extends M2MJS_Component {
       async renderDaysOfMonth(calendarDate) {
         return new Promise(async (resolve, reject) => {
           this._showDate = this.cloneDate(calendarDate);
-          //console.info("renderDaysOfMonth ", calendarDate);
 
           /* Render Month */
           this._templateRenderer.calendarElement.querySelector("#selectedMonth").innerHTML =
@@ -656,9 +851,8 @@ class Calendar extends M2MJS_Component {
           const calendarData = await this.defineMonthCalendarData(calendarDate);
           const daysTemplate = await M2MJS_TemplateLoader.loadTemplateFromCurrentPage("daysTemplate");
 
-          // console.info("calendarData ", calendarData);
-
           //#region render grid
+
           const daysGrid = new M2MJS_Grid(
             calendarData,
             this._templateRenderer.calendarElement.querySelector("#daysPlaceHolder"),
@@ -710,7 +904,6 @@ class Calendar extends M2MJS_Component {
           ];
 
           daysGrid.renderGrid();
-
           //#endregion render grid
 
           resolve(true);
@@ -735,14 +928,9 @@ class Calendar extends M2MJS_Component {
             break;
         }
 
-        //TODO: Add select date event
         M2MJS_XBrowser.addHandler(element, "click", async (e) => {
-          //this._showDate.setDate(calendarDay.day);
-          //this._date = this.cloneDate(this._showDate);
-          //console.info("Selected date: ", this._date);
           await this.onSelectDate(calendarDay);
         });
-
       }
 
       /*TODO: Switch to private */
@@ -851,51 +1039,144 @@ class Calendar extends M2MJS_Component {
         });
       }
 
-      //#endregion Render Calendar Month
+      async renderTimeOfDate() {
+        if (this._calendar.calendarParameters.isDateAndTime) {
+          this._templateRenderer.calendarElement.querySelector("#timePlaceHolder").style.visibility = 'visible';
+          this._templateRenderer.calendarElement.querySelector("#cal_time").innerHTML =
+            new M2MJS_DateWithArithmetic(this.showDate, this._calendar.calendarParameters.dateFormat).timeString();
+        } else {
+          this._templateRenderer.calendarElement.querySelector("#timePlaceHolder").style.visibility = 'hidden';
+        }
+      }
+      //#endregion  Days Form
 
-      //#region Render Months Of A Year
-      async renderMonthsOfAYear() {
-        //console.info("renderMonthsOfAYear. Year= ", this._date.getFullYear());
-
-        const monthsData = {
-          month1: this._calendar.calendarParameters.monthNames[0],
-          month2: this._calendar.calendarParameters.monthNames[1],
-          month3: this._calendar.calendarParameters.monthNames[2],
-          month4: this._calendar.calendarParameters.monthNames[3],
-          month5: this._calendar.calendarParameters.monthNames[4],
-          month6: this._calendar.calendarParameters.monthNames[5],
-          month7: this._calendar.calendarParameters.monthNames[6],
-          month8: this._calendar.calendarParameters.monthNames[7],
-          month9: this._calendar.calendarParameters.monthNames[8],
-          month10: this._calendar.calendarParameters.monthNames[9],
-          month11: this._calendar.calendarParameters.monthNames[10],
-          month12: this._calendar.calendarParameters.monthNames[11]
-        };
-
+      //#region Months Form
+      async renderMonthsForm() {
         const data = {
-          year: this._date.getFullYear(),
+          year: this._showDate.getFullYear(),
           month: -1
         };
 
-        let form = new M2MJS_Form();
-        form.addComponent(new SimpleComponent("year", this._templateRenderer.calendarElement.querySelector("#selectedYear")));
+        if (this.monthsForm === null) {
+          this.monthsForm = new M2MJS_Form();
+          this.monthsForm.addComponent(new SimpleComponent("year", this._templateRenderer.calendarElement.querySelector("#selectedYear")));
+        }
 
-        const monthsComponent = new this.MonthsComponent("month", this._templateRenderer.calendarElement, monthsData);
+        if (this.monthsComponent === null) {
+          const monthsData = {
+            month1: this._calendar.calendarParameters.monthNames[0],
+            month2: this._calendar.calendarParameters.monthNames[1],
+            month3: this._calendar.calendarParameters.monthNames[2],
+            month4: this._calendar.calendarParameters.monthNames[3],
+            month5: this._calendar.calendarParameters.monthNames[4],
+            month6: this._calendar.calendarParameters.monthNames[5],
+            month7: this._calendar.calendarParameters.monthNames[6],
+            month8: this._calendar.calendarParameters.monthNames[7],
+            month9: this._calendar.calendarParameters.monthNames[8],
+            month10: this._calendar.calendarParameters.monthNames[9],
+            month11: this._calendar.calendarParameters.monthNames[10],
+            month12: this._calendar.calendarParameters.monthNames[11]
+          };
 
-        monthsComponent.onSelect = () => {
-          // console.info("form.modelObject=", form.modelObject);
-          this.onSelectMonth(form.modelObject.month, form.modelObject.year);
+          this.monthsComponent = new this.MonthsComponent("month", this._templateRenderer.calendarElement, monthsData);
+
+          this.monthsComponent.onSelect = () => {
+            this.onSelectMonth(this.monthsForm.modelObject.month, this.monthsForm.modelObject.year);
+          };
+
+          this.monthsForm.addComponent(this.monthsComponent);
+        }
+
+        this.monthsForm.modelObject = data;
+      }
+      //#endregion Months Form
+
+      //#region Decade Form
+      async renderDecadeForm() {
+        const referenceYear = this._showDate.getFullYear();
+        const decadeStart = this.defineDecadeStart(referenceYear);
+        const decadeEnd = this.defineDecadeEnd(decadeStart);
+
+        const data = {
+          decade: `${decadeStart} - ${decadeEnd}`,
+          year: -1
         };
 
-        form.addComponent(monthsComponent);
+        if (this.yearsForm === null) {
+          this.yearsForm = new M2MJS_Form();
+          this.yearsForm.addComponent(new SimpleComponent("decade", this._templateRenderer.calendarElement.querySelector("#selectedDecade")));
+        }
 
-        form.modelObject = data;
-      }
-      //#endregion Render Months Of A Year
+        const decadeYears = this.defineYearsOfADecade(decadeStart, 2);
 
-      async renderYearsOfADecade() {
-        console.info("renderYearsOfADecade ", calendarDate);
+        if (this.yearsComponent === null) {
+          this.yearsComponent = new this.YearsComponent("year", this._templateRenderer.calendarElement, decadeYears);
+          this.yearsForm.addComponent(this.yearsComponent);
+
+          this.yearsComponent.onSelect = () => {
+            this.onSelectYear(this.yearsForm.modelObject.year);
+          };
+        } else {
+          this.yearsComponent.decadeYears = decadeYears;
+        }
+
+        this.yearsForm.modelObject = data;
       }
+
+      defineDecadeStart(referenceYear) {
+        let millenium = referenceYear % (referenceYear >= 100 ? 100 : (referenceYear >= 10 ? 10 : 1));
+        millenium = referenceYear - millenium;
+        if (millenium < 10) {
+          millenium = 0;
+        }
+
+        let decadeYear = millenium > 0 ? referenceYear % millenium : 0;
+        let restYear = decadeYear % 10;
+        let decadeStart = decadeYear - restYear;
+        decadeStart += millenium;
+
+        return decadeStart;
+      }
+
+      defineDecadeEnd(decadeStart) {
+        return decadeStart + 9;
+      }
+
+      defineYearsOfADecade(decadeStart, extraYears) {
+        let yearsOfADecade = [];
+        for (let year = decadeStart; year <= decadeStart + 9 + extraYears; year++) {
+          yearsOfADecade.push(year);
+        }
+
+        return yearsOfADecade;
+      }
+      //#endregion Decade Form
+
+      //#region Time Form
+      async renderTimeForm() {
+        const data = {
+          time: {
+            h: this._showDate.getHours(),
+            m: this._showDate.getMinutes()
+          }
+        };
+        if (this.timeComponent === null) {
+          this.timeComponent = new this.TimeComponent("time", this._templateRenderer.calendarElement, data.time);
+
+          this.timeComponent.onSelect = (time) => {
+            this.onSelectTime(time.h, time.m);
+          };
+
+          this.timeComponent.onCancel = () => {
+            this.onCancelTime();
+          };
+        } else {
+          this.timeComponent.time = data.time;
+        }
+
+        this._templateRenderer.calendarElement.querySelector("#selectedDateTime").innerHTML = new M2MJS_DateWithArithmetic(this._showDate).toString(this._calendar.calendarParameters.dateFormat);
+      }
+      //#endregion Time Form
 
       cloneDate(date) {
         if (date == null) {
@@ -940,7 +1221,6 @@ class Calendar extends M2MJS_Component {
       async onUpdateValue(observable, value) {
         this._calendar.setValue(value);
       }
-
     };
 
     //#endregion Calendar Value Observer
@@ -960,19 +1240,23 @@ class Calendar extends M2MJS_Component {
       }
     };
 
-    this.calendarValue = new this.CalendarValue(this);
-    this.calendarState = new this.CalendarState();
-    this.calendarVisibilyState = new this.CalendarVisibilyState();
-
     //#endregion Calendar Value Observer
 
     // =================================================================================================== //    
 
+    //#region Private Members
+    this._calendarParameters = calendarParameters;
+    this._date = new Date();
+    this._timeOptions = { hc: 'h24', hour12: false, hour: '2-digit', minute: '2-digit' };
+
+    this.calendarValue = new this.CalendarValue(this);
+    this.calendarState = new this.CalendarState();
+    this.calendarVisibilyState = new this.CalendarVisibilyState();
+    //#endregion Private Members
+
     /* Init */
     this[_cal_init](eventElement);
-
   }
-
   //#region Private Methods
 
   /*
@@ -992,14 +1276,13 @@ class Calendar extends M2MJS_Component {
       const daysOfMonthTemplate = await M2MJS_TemplateLoader.loadTemplateFromCurrentPage("daysOfMonthTemplate");
       const monthsOfAYearTemplate = await M2MJS_TemplateLoader.loadTemplateFromCurrentPage("monthsOfAYearTemplate");
       const yearsOfADecadeTemplate = await M2MJS_TemplateLoader.loadTemplateFromCurrentPage("yearsOfADecadeTemplate");
-
-      //let calendarState = new this.CalendarState();
-      // let calendarVisibilyState = new this.CalendarVisibilyState();
+      const chooseTimeTemplate = await M2MJS_TemplateLoader.loadTemplateFromCurrentPage("chooseTimeTemplate");
 
       let templateRenderer = new this.CalendarTemplateRenderer({
         "daysOfMonthTemplate": daysOfMonthTemplate,
         "monthsOfAYearTemplate": monthsOfAYearTemplate,
-        "yearsOfADecadeTemplate": yearsOfADecadeTemplate
+        "yearsOfADecadeTemplate": yearsOfADecadeTemplate,
+        "chooseTimeTemplate": chooseTimeTemplate
       });
 
       M2MJS_XBrowser.addHandler(eventElement, "click", async (e) => {
@@ -1008,8 +1291,6 @@ class Calendar extends M2MJS_Component {
         }
 
         await this.calendarVisibilyState.setNextState(e);
-
-        // console.info("get date from value ", this._date);
       });
 
       M2MJS_XBrowser.addHandler(document.body, "click", async (e) => {
@@ -1020,12 +1301,8 @@ class Calendar extends M2MJS_Component {
         M2MJS_XBrowser.stopEventPropagation(e);
       });
 
-      M2MJS_XBrowser.addHandler(this._element, "keyup", async (e) => {
-        const validKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', this.calendarParameters.dateSeparator];
-
-        if (validKeys.includes(e.key)) {
-          this.setValue(this.element.value);
-        }
+      M2MJS_XBrowser.addHandler(this.element, "keyup", async (e) => {
+        this.setValue(this.element.value);
       });
 
       this.calendarState.addObserver(templateRenderer);
@@ -1035,7 +1312,6 @@ class Calendar extends M2MJS_Component {
 
       let dataRenderer = new this.CalendarDataRenderer(templateRenderer, this, this._date);
       this.calendarState.addObserver(dataRenderer);
-      this.calendarVisibilyState.addObserver(dataRenderer);
 
       M2MJS_XBrowser.addHandler(daysOfMonthTemplate.querySelector("#previousMonth"), "click", async (e) => {
         dataRenderer.renderDaysOfMonth(new M2MJS_DateWithArithmetic(dataRenderer.showDate).addMonth(-1).toDate());
@@ -1049,7 +1325,21 @@ class Calendar extends M2MJS_Component {
         dataRenderer.renderDaysOfMonth(new Date());
       });
 
+      M2MJS_XBrowser.addHandler(daysOfMonthTemplate.querySelector("#cal_btn_time"), "click", async (e) => {
+        M2MJS_XBrowser.stopEventPropagation(e);
+
+        await this.calendarState.setState(this.calendarState.states.TIME_STATE);
+        await this.calendarVisibilyState.setVisible(e);
+      });
+
       M2MJS_XBrowser.addHandler(daysOfMonthTemplate.querySelector("#selectedMonth"), "click", async (e) => {
+        M2MJS_XBrowser.stopEventPropagation(e);
+
+        await this.calendarState.setNextState();
+        await this.calendarVisibilyState.setVisible(e);
+      });
+
+      M2MJS_XBrowser.addHandler(monthsOfAYearTemplate.querySelector("#selectedYear"), "click", async (e) => {
         M2MJS_XBrowser.stopEventPropagation(e);
 
         await this.calendarState.setNextState();
@@ -1067,21 +1357,70 @@ class Calendar extends M2MJS_Component {
           dataRenderer.showDate.setMonth(dataRenderer.showDate.getMonth() - 1);
         }
 
-        dataRenderer.date = dataRenderer.cloneDate(dataRenderer.showDate);// ??? TODO: Investigate later
+        dataRenderer.date = dataRenderer.cloneDate(dataRenderer.showDate);
         this._date = dataRenderer.cloneDate(dataRenderer.date);
 
-        this.setValue(this._date.toLocaleDateString("el-GR"));
+        //this.setValue(this._date.toLocaleDateString("el-GR"));
+        if (this._calendarParameters.isDateAndTime) {
+          const options = { hc: 'h24', hour12: false, hour: '2-digit', minute: '2-digit' };
+          this.setValue(this._date.toLocaleDateString(this._calendarParameters.localeString, options));
+        } else {
+          this.setValue(this._date.toLocaleDateString(this._calendarParameters.localeString));
+        }
 
         await this.calendarVisibilyState.setNotVisible();
       };
 
       dataRenderer.onSelectMonth = async (month, year) => {
-        //console.info("Month=", month, "Year=", year);
         dataRenderer.showDate = M2MJS_DateWithArithmetic.createDate(1, month, year);
         await this.calendarState.setPreviousState();
-        //await dataRenderer.renderDaysOfMonth(M2MJS_DateWithArithmetic.createDate(1, month, year));
-
       };
+
+      dataRenderer.onSelectYear = async (year) => {
+        dataRenderer.showDate.setFullYear(year);
+        await this.calendarState.setPreviousState();
+      };
+
+      dataRenderer.onSelectTime = async (hour, minute) => {
+        dataRenderer.showDate.setHours(hour, minute);
+
+        await this.calendarState.setPreviousState();
+      };
+
+      dataRenderer.onCancelTime = async () => {
+        await this.calendarState.setPreviousState();
+      }
+
+      M2MJS_XBrowser.addHandler(monthsOfAYearTemplate.querySelector("#previousYear"), "click", async (e) => {
+        dataRenderer.showDate.setFullYear(dataRenderer.showDate.getFullYear() - 1);
+        dataRenderer.renderMonthsOfAYear();
+      });
+
+      M2MJS_XBrowser.addHandler(monthsOfAYearTemplate.querySelector("#nextYear"), "click", async (e) => {
+        dataRenderer.showDate.setFullYear(dataRenderer.showDate.getFullYear() + 1);
+        dataRenderer.renderMonthsOfAYear();
+      });
+
+      M2MJS_XBrowser.addHandler(monthsOfAYearTemplate.querySelector("#today"), "click", async (e) => {
+        await this.calendarState.setPreviousState();
+        dataRenderer.renderDaysOfMonth(new Date());
+      });
+
+      M2MJS_XBrowser.addHandler(yearsOfADecadeTemplate.querySelector("#previousDecade"), "click", async (e) => {
+        dataRenderer.showDate.setFullYear(dataRenderer.showDate.getFullYear() - 10);
+        dataRenderer.renderYearsOfADecade();
+      });
+
+      M2MJS_XBrowser.addHandler(yearsOfADecadeTemplate.querySelector("#nextDecade"), "click", async (e) => {
+        dataRenderer.showDate.setFullYear(dataRenderer.showDate.getFullYear() + 10);
+        dataRenderer.renderYearsOfADecade();
+      });
+
+      M2MJS_XBrowser.addHandler(yearsOfADecadeTemplate.querySelector("#today"), "click", async (e) => {
+        await this.calendarState.setPreviousState();
+        await this.calendarState.setPreviousState();
+        dataRenderer.renderDaysOfMonth(new Date());
+      });
 
       this.calendarValue.addObserver(dataRenderer);
 
@@ -1114,43 +1453,49 @@ class Calendar extends M2MJS_Component {
    * @returns {String} Calendar's date as formated String value
    */
   getValue() {
-    console.info("get value=", this._date);
-    console.info("format=", this._calendarParameters.dateFormat);
-
     if (this._date === null) {
       return null;
     }
 
-    return this._date.toLocaleDateString("el-GR");
+    const options = { hc: 'h24', hour12: false, hour: '2-digit', minute: '2-digit' };
+
+    return this._date.toLocaleDateString(this._calendarParameters.localeString, options).replace(",", "");
   }
 
   /**
+   * @override
    * Sets Calendar date and triggers onValueSet 'public event'
    * @param {String} value Calendar's date as formated String value
    */
   setValue(value) {
+    let paintCalendar = true;
+
     if (value != null && value.trim() != '') {
       const currentDate = M2MJS_DateWithArithmetic.cloneDate(this._date);
 
       try {
-        this._date = M2MJS_DateWithArithmetic.parseFromString(value, this._calendarParameters.dateFormat).toDate();
-      } catch (e) {
-        //console.error(e);
-        this._date = currentDate === null ? new Date() : currentDate;
-      }
+        this._date = M2MJS_DateWithArithmetic.cloneDate(M2MJS_DateWithArithmetic.parseFromString(value, this._calendarParameters.dateFormat).toDate());
 
+        if (M2MJS_DateWithArithmetic.equals(currentDate, this._date, this._calendarParameters.isDateAndTime)) {
+          paintCalendar = false;
+        }
+      } catch (e) {
+        this._date = (currentDate === null ? new Date() : currentDate);
+        paintCalendar = false;
+      }
     } else {
       this._date = new Date();
     }
 
-    this.calendarValue.setValue(this._date);
+    if (paintCalendar) {
+      this.calendarValue.setValue(this._date);
 
-    if (this.calendarVisibilyState.state === this.calendarVisibilyState.states.VISIBLE) {
-      (async () => {
-        await this.calendarState.initState();
-      })();
+      if (this.calendarVisibilyState.state === this.calendarVisibilyState.states.VISIBLE) {
+        (async () => {
+          await this.calendarState.initState();
+        })();
+      }
     }
-
 
     this.onValueSet(value);
   }
